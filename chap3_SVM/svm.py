@@ -34,21 +34,45 @@ class SVM():
 
     def __init__(self):
         # 请补全此处代码
-        pass
+        self.W = None
+        self.b = None
 
-    def train(self, data_train):
+    def train(self, data_train, learning_rate=0.001, epochs=1000, C=1.0):
         """
         训练模型。
         """
-
         # 请补全此处代码
+        X = data_train[:, :2]
+        y = data_train[:, 2]
+        # 将标签转换为 -1 和 1
+        y = np.where(y <= 0, -1, 1)
+
+        n_samples, n_features = X.shape
+
+        # 初始化权重和偏置
+        self.W = np.zeros(n_features)
+        self.b = 0
+
+        # 梯度下降训练
+        for epoch in range(epochs):
+            for idx, x_i in enumerate(X):
+                condition = y[idx] * (np.dot(x_i, self.W) + self.b) >= 1
+                if condition:
+                    # 正确分类，只更新权重正则化项
+                    self.W -= learning_rate * (2 * 1/epochs * self.W)
+                else:
+                    # 错误分类，更新权重和偏置
+                    self.W -= learning_rate * (2 * 1/epochs * self.W - np.dot(x_i, y[idx]))
+                    self.b -= learning_rate * (-y[idx])
 
     def predict(self, x):
         """
         预测标签。
         """
-
         # 请补全此处代码
+        linear_output = np.dot(x, self.W) + self.b
+        # 将预测结果转换为 0 和 1
+        return np.where(linear_output >= 0, 1, 0)
 
 
 if __name__ == '__main__':
